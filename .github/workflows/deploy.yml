@@ -31,10 +31,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install LangGraph CLI
+      - name: Install deployment dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install langgraph-cli
+          pip install requests
 
       - name: Validate langgraph.json
         run: |
@@ -53,7 +53,7 @@ jobs:
           LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          langgraph cloud deploy --wait
+          python .github/scripts/deploy_langgraph.py
 
       - name: Deployment summary
         if: success()
