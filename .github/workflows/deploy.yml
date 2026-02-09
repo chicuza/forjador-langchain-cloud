@@ -1,0 +1,70 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  deploy:
+    name: Deploy to LangGraph Platform Cloud
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install LangGraph CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install langgraph-cli
+
+      - name: Validate langgraph.json
+        run: |
+          if [ ! -f langgraph.json ]; then
+            echo "Error: langgraph.json not found"
+            exit 1
+          fi
+          cat langgraph.json
+
+      - name: Install project dependencies
+        run: |
+          pip install -e .
+
+      - name: Deploy to LangGraph Platform Cloud
+        env:
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          langgraph deploy --wait
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "Successfully deployed to LangGraph Platform Cloud"
+          echo "Graph: forjador_v5_pipeline"
+          echo "Entry point: src.agent:graph"
+          echo "Deployment time: $(date -u)"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Deployment failed. Check logs above for details."
+          exit 1
