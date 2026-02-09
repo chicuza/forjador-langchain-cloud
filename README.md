@@ -40,8 +40,22 @@ Forjador v5 is an AI-powered pipeline for extracting structured SKU data from in
 - Python 3.11+
 - Google Gemini API key
 - LangSmith account (for tracing)
+- Git Bash (Windows) or Bash (Linux/Mac)
 
-### Installation
+### Automated Setup (Recommended)
+
+```bash
+# One-command setup (creates venv, installs deps, creates .env)
+./scripts/setup.sh
+
+# Edit .env with your API keys
+nano .env  # or notepad .env on Windows
+
+# Validate environment
+python -m src.utils.env_validator
+```
+
+### Manual Installation
 
 ```bash
 # 1. Clone repository
@@ -72,6 +86,61 @@ langgraph dev
 # Server runs at http://localhost:8000
 # GraphiQL interface at http://localhost:8000/
 ```
+
+---
+
+## CLI Scripts
+
+Practical scripts for local development and deployment (match CI/CD pipeline):
+
+### Available Scripts
+
+| Script | Purpose | Time |
+|--------|---------|------|
+| `setup.sh` | Initial setup (venv, deps, .env) | 2-5 min |
+| `test_local.sh` | Run tests with coverage | 10-30 sec |
+| `quality_check.sh` | Code quality checks (ruff, black, mypy) | 5-10 sec |
+| `deploy_local.sh` | Deploy to LangGraph Cloud | 2-5 min |
+
+### Quick Commands
+
+```bash
+# Initial setup
+./scripts/setup.sh
+
+# Run tests (matches CI)
+./scripts/test_local.sh
+
+# Code quality checks (matches CI)
+./scripts/quality_check.sh
+
+# Deploy to LangGraph Cloud
+./scripts/deploy_local.sh
+
+# Start local dev server
+langgraph dev
+```
+
+### Complete Workflow
+
+```bash
+# 1. Setup project
+./scripts/setup.sh
+
+# 2. Edit .env with API keys
+nano .env
+
+# 3. Run quality checks
+./scripts/quality_check.sh
+
+# 4. Run tests
+./scripts/test_local.sh
+
+# 5. Deploy to cloud
+./scripts/deploy_local.sh
+```
+
+See [`scripts/README.md`](scripts/README.md) for detailed documentation.
 
 ---
 
