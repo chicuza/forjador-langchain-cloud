@@ -1,0 +1,114 @@
+# Forjador v5 - Pre-commit Configuration
+# Purpose: Automated quality checks before commits
+# Version: 1.0.0
+# Date: 2026-02-09
+#
+# Installation:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually:
+#   pre-commit run --all-files
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        name: Ruff Linter
+        description: Run Ruff linter with auto-fix
+
+      # Run the formatter
+      - id: ruff-format
+        name: Ruff Format
+        description: Run Ruff formatter
+
+  # MyPy - Static type checker
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        name: MyPy Type Check
+        description: Run MyPy type checker
+        additional_dependencies:
+          - types-pyyaml
+          - types-requests
+        files: ^src/
+        args: [--ignore-missing-imports, --no-strict-optional]
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Prevent large files from being committed
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+        name: Check for Large Files
+
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+        name: Fix End of Files
+
+      # Trim trailing whitespace
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        args: [--markdown-linebreak-ext=md]
+
+      # Check YAML syntax
+      - id: check-yaml
+        name: Check YAML Syntax
+        args: [--safe]
+
+      # Check for merge conflicts
+      - id: check-merge-conflict
+        name: Check for Merge Conflicts
+
+      # Check JSON syntax
+      - id: check-json
+        name: Check JSON Syntax
+
+      # Prevent commits to main/master
+      - id: no-commit-to-branch
+        name: Prevent Direct Commits to Main
+        args: [--branch, main, --branch, master]
+
+  # Security: Check for secrets
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: package.lock.json
+
+# Global exclusions
+exclude: |
+  (?x)^(
+      \.git/|
+      \.venv/|
+      venv/|
+      __pycache__/|
+      \.pytest_cache/|
+      \.mypy_cache/|
+      \.ruff_cache/|
+      htmlcov/|
+      dist/|
+      build/|
+      .*\.egg-info/|
+      node_modules/
+  )
+
+# Configuration
+default_language_version:
+  python: python3.11
+
+ci:
+  autofix_commit_msg: "[pre-commit.ci] Auto-fix from pre-commit hooks"
+  autofix_prs: true
+  autoupdate_commit_msg: "[pre-commit.ci] Auto-update pre-commit hooks"
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
