@@ -218,7 +218,6 @@ def validate_pyproject_toml() -> Tuple[int, int]:
             "langchain-google-genai",
             "pytest",
             "ruff",
-            "black",
             "mypy",
         ]
 
