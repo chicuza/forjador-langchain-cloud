@@ -1,0 +1,642 @@
+# ============================================================================
+# FORJADOR V5 - SPEC-01 COMPLEXITY CLASSIFICATION MATRIX
+# ============================================================================
+# Version: 1.0.0
+# Purpose: 11-tier document complexity classification for parser routing
+# Date: 2026-02-09
+#
+# This YAML file defines the complexity classification system that determines
+# which parser (Docling, Gemini Vision, or Pandas) should be used for each
+# document type. The classification is based on extracted features and maps
+# to optimal parser selection with fallback chains.
+#
+# Routing Strategy (SPEC-01 - 3 Parsers):
+# - Tier 1-3: Pandas/CSV parser (structured data)
+# - Tier 4-7: Docling parser (standard PDFs with text/tables)
+# - Tier 8-11: Gemini Vision parser (scanned, handwritten, damaged)
+#
+# Performance: Fast classification (< 1 second) to enable quick routing
+# ============================================================================
+
+metadata:
+  version: "1.0.0"
+  spec: "SPEC-01"
+  total_tiers: 11
+  total_parsers: 3
+  parser_solutions:
+    - SOL-04: "Docling 2.0"
+    - SOL-05: "Gemini 2.5 Flash Vision"
+    - SOL-08: "Pandas/Polars"
+  last_updated: "2026-02-09"
+
+# ============================================================================
+# COMPLEXITY TIER DEFINITIONS
+# ============================================================================
+# Each tier defines:
+#   - name: Human-readable tier description
+#   - features: Dictionary of feature extractors and expected values
+#   - primary_parser: Best parser for this tier
+#   - fallback_chain: Ordered list of fallback parsers
+#   - avg_processing_time_s: Estimated processing time
+#   - confidence_threshold: Minimum confidence to use this tier
+# ============================================================================
+
+complexity_tiers:
+
+  # ==========================================================================
+  # TIER 1: Simple Structured CSV
+  # ==========================================================================
+  tier_1:
+    name: "Simple Structured CSV"
+    description: "Plain CSV file with clear headers and tabular data"
+    complexity_score: 1
+
+    features:
+      file_format: "csv"
+      has_headers: true
+      line_count:
+        min: 1
+        max: 1000
+      has_images: false
+      has_tables: true  # CSV is inherently tabular
+      is_structured: true
+      encoding_issues: false
+      delimiter_consistent: true
+      columns_count:
+        min: 3
+        max: 50
+
+    # Parser routing
+    primary_parser: "SOL-08"  # Pandas/Polars
+    fallback_chain:
+      - "SOL-04"  # Docling (can handle CSV export as text)
+      - "SOL-05"  # Gemini Vision (screenshot fallback)
+
+    # Performance metrics
+    avg_processing_time_s: 0.5
+    max_processing_time_s: 2.0
+    confidence_threshold: 0.95
+
+    # Quality expectations
+    expected_extraction_quality: 0.98
+    expected_completeness: 0.99
+
+  # ==========================================================================
+  # TIER 2: Simple Excel Spreadsheet
+  # ==========================================================================
+  tier_2:
+    name: "Simple Excel Spreadsheet"
+    description: "Clean Excel file with simple data, no complex formulas"
+    complexity_score: 2
+
+    features:
+      file_format: "xlsx"
+      sheet_count:
+        min: 1
+        max: 5
+      has_formulas: false
+      has_pivot_tables: false
+      has_charts: false
+      has_images: false
+      has_merged_cells: false
+      is_structured: true
+      data_validation: false
+
+    primary_parser: "SOL-08"  # Pandas
+    fallback_chain:
+      - "SOL-04"  # Docling
+      - "SOL-05"  # Gemini Vision
+
+    avg_processing_time_s: 1.0
+    max_processing_time_s: 3.0
+    confidence_threshold: 0.93
+
+    expected_extraction_quality: 0.96
+    expected_completeness: 0.97
+
+  # ==========================================================================
+  # TIER 3: Standard PDF with Text
+  # ==========================================================================
+  tier_3:
+    name: "Standard PDF with Text"
+    description: "Digital PDF with searchable text, no images or tables"
+    complexity_score: 3
+
+    features:
+      file_format: "pdf"
+      is_scanned: false
+      has_searchable_text: true
+      has_tables: false
+      has_images: false
+      has_forms: false
+      page_count:
+        min: 1
+        max: 50
+      text_density: "high"  # >80% of page is text
+      layout_complexity: "simple"
+      encryption: false
+      compression: "standard"
+
+    primary_parser: "SOL-04"  # Docling
+    fallback_chain:
+      - "SOL-05"  # Gemini Vision
+      - "SOL-08"  # Pandas (if can export to CSV)
+
+    avg_processing_time_s: 2.0
+    max_processing_time_s: 8.0
+    confidence_threshold: 0.90
+
+    expected_extraction_quality: 0.94
+    expected_completeness: 0.95
+
+  # ==========================================================================
+  # TIER 4: PDF with Embedded Tables
+  # ==========================================================================
+  tier_4:
+    name: "PDF with Embedded Tables"
+    description: "Digital PDF with tables, medium table complexity"
+    complexity_score: 4
+
+    features:
+      file_format: "pdf"
+      is_scanned: false
+      has_searchable_text: true
+      has_tables: true
+      table_count:
+        min: 1
+        max: 20
+      table_complexity: "medium"  # Some merged cells, varied column widths
+      has_nested_tables: false
+      has_images: false
+      page_count:
+        min: 1
+        max: 100
+      text_density: "medium"
+
+    primary_parser: "SOL-04"  # Docling (excellent table extraction)
+    fallback_chain:
+      - "SOL-05"  # Gemini Vision
+      - "SOL-08"  # Pandas (if tables can be exported)
+
+    avg_processing_time_s: 3.0
+    max_processing_time_s: 12.0
+    confidence_threshold: 0.87
+
+    expected_extraction_quality: 0.91
+    expected_completeness: 0.92
+
+  # ==========================================================================
+  # TIER 5: PDF with Images/Charts
+  # ==========================================================================
+  tier_5:
+    name: "PDF with Images and Charts"
+    description: "Digital PDF with embedded images, charts, or diagrams"
+    complexity_score: 5
+
+    features:
+      file_format: "pdf"
+      is_scanned: false
+      has_searchable_text: true
+      has_images: true
+      image_count:
+        min: 1
+        max: 20
+      has_charts: true
+      has_diagrams: true
+      text_in_images: false
+      page_count:
+        min: 1
+        max: 100
+      text_density: "low_to_medium"  # 30-70% text
+      layout_complexity: "medium"
+
+    primary_parser: "SOL-05"  # Gemini Vision (handles images)
+    fallback_chain:
+      - "SOL-04"  # Docling (can extract text, skip images)
+      - "SOL-08"  # Pandas (minimal fallback)
+
+    avg_processing_time_s: 4.0
+    max_processing_time_s: 15.0
+    confidence_threshold: 0.85
+
+    expected_extraction_quality: 0.88
+    expected_completeness: 0.89
+
+  # ==========================================================================
+  # TIER 6: Multi-page Complex PDF
+  # ==========================================================================
+  tier_6:
+    name: "Multi-page Complex PDF"
+    description: "Large PDF with complex layout, multiple sections"
+    complexity_score: 6
+
+    features:
+      file_format: "pdf"
+      is_scanned: false
+      has_searchable_text: true
+      page_count:
+        min: 50
+        max: 500
+      has_tables: true
+      has_images: true
+      table_complexity: "high"  # Nested tables, complex formatting
+      has_multi_column_layout: true
+      has_headers_footers: true
+      has_watermarks: false
+      text_density: "varied"
+      layout_complexity: "high"
+
+    primary_parser: "SOL-04"  # Docling (handles complex layouts)
+    fallback_chain:
+      - "SOL-05"  # Gemini Vision
+      - "SOL-08"  # Pandas (minimal)
+
+    avg_processing_time_s: 8.0
+    max_processing_time_s: 30.0
+    confidence_threshold: 0.82
+
+    expected_extraction_quality: 0.85
+    expected_completeness: 0.87
+
+  # ==========================================================================
+  # TIER 7: Scanned PDF (Good Quality OCR)
+  # ==========================================================================
+  tier_7:
+    name: "Scanned PDF - Good Quality"
+    description: "Scanned document with good scan quality, OCR needed"
+    complexity_score: 7
+
+    features:
+      file_format: "pdf"
+      is_scanned: true
+      scan_quality: "good"  # >300 DPI, clear text
+      has_searchable_text: false  # No embedded text layer
+      requires_ocr: true
+      skew_angle:
+        min: -2
+        max: 2  # Minimal skew
+      has_noise: false
+      has_bleed_through: false
+      text_clarity: "high"
+      page_count:
+        min: 1
+        max: 100
+
+    primary_parser: "SOL-05"  # Gemini Vision (native OCR)
+    fallback_chain:
+      - "SOL-04"  # Docling (has OCR capabilities)
+
+    avg_processing_time_s: 5.0
+    max_processing_time_s: 20.0
+    confidence_threshold: 0.80
+
+    expected_extraction_quality: 0.83
+    expected_completeness: 0.85
+
+  # ==========================================================================
+  # TIER 8: Scanned PDF (Poor Quality OCR)
+  # ==========================================================================
+  tier_8:
+    name: "Scanned PDF - Poor Quality"
+    description: "Low-quality scan, faded text, requires advanced OCR"
+    complexity_score: 8
+
+    features:
+      file_format: "pdf"
+      is_scanned: true
+      scan_quality: "poor"  # <200 DPI, faded, artifacts
+      has_searchable_text: false
+      requires_ocr: true
+      skew_angle:
+        min: -10
+        max: 10  # Moderate skew
+      has_noise: true
+      has_bleed_through: true
+      text_clarity: "low"
+      has_stains: true
+      has_folded_corners: false
+      page_count:
+        min: 1
+        max: 50
+
+    primary_parser: "SOL-05"  # Gemini Vision (handles poor quality)
+    fallback_chain:
+      - "SOL-04"  # Docling (attempt OCR cleanup)
+
+    avg_processing_time_s: 7.0
+    max_processing_time_s: 25.0
+    confidence_threshold: 0.75
+
+    expected_extraction_quality: 0.75
+    expected_completeness: 0.78
+
+  # ==========================================================================
+  # TIER 9: Handwritten Documents
+  # ==========================================================================
+  tier_9:
+    name: "Handwritten Documents"
+    description: "Handwritten notes or forms, requires advanced OCR"
+    complexity_score: 9
+
+    features:
+      file_format: ["pdf", "png", "jpg"]
+      is_scanned: true
+      has_handwriting: true
+      handwriting_clarity: "medium"  # Reasonably legible
+      has_printed_text: false
+      has_forms: true  # Often handwritten forms
+      requires_advanced_ocr: true
+      text_orientation: "varied"
+      language: "pt-BR"
+
+    primary_parser: "SOL-05"  # Gemini Vision (handles handwriting)
+    fallback_chain: []  # No fallback - only Gemini can handle this
+
+    avg_processing_time_s: 10.0
+    max_processing_time_s: 35.0
+    confidence_threshold: 0.70
+
+    expected_extraction_quality: 0.68
+    expected_completeness: 0.70
+
+  # ==========================================================================
+  # TIER 10: Mixed Format Documents
+  # ==========================================================================
+  tier_10:
+    name: "Mixed Format Documents"
+    description: "Documents with mixed content: printed + handwritten + images"
+    complexity_score: 10
+
+    features:
+      file_format: ["pdf", "png", "jpg"]
+      is_scanned: true
+      has_handwriting: true
+      has_printed_text: true
+      has_images: true
+      has_tables: true
+      has_stamps: true
+      has_signatures: true
+      has_annotations: true
+      layout_complexity: "very_high"
+      requires_advanced_ocr: true
+      requires_multimodal_understanding: true
+
+    primary_parser: "SOL-05"  # Gemini Vision (multimodal)
+    fallback_chain: []  # No fallback for this complexity
+
+    avg_processing_time_s: 12.0
+    max_processing_time_s: 40.0
+    confidence_threshold: 0.65
+
+    expected_extraction_quality: 0.65
+    expected_completeness: 0.67
+
+  # ==========================================================================
+  # TIER 11: Corrupted or Damaged Files
+  # ==========================================================================
+  tier_11:
+    name: "Corrupted or Damaged Files"
+    description: "Partially corrupted, damaged scans, or severely degraded quality"
+    complexity_score: 11
+
+    features:
+      file_format: ["pdf", "png", "jpg"]
+      is_corrupted: true
+      has_missing_pages: true
+      has_severe_degradation: true
+      has_water_damage: true
+      has_torn_edges: true
+      text_clarity: "very_low"
+      requires_reconstruction: true
+      requires_manual_intervention: true
+      extraction_feasibility: "low"
+
+    primary_parser: "SOL-05"  # Gemini Vision (best chance)
+    fallback_chain: []  # No fallback - may require human intervention
+
+    avg_processing_time_s: 15.0
+    max_processing_time_s: 60.0
+    confidence_threshold: 0.50
+
+    expected_extraction_quality: 0.50
+    expected_completeness: 0.55
+
+    notes: "Consider flagging for manual review (HITL) in SPEC-02"
+
+# ============================================================================
+# FEATURE EXTRACTORS
+# ============================================================================
+# Functions to extract features from documents for classification
+# ============================================================================
+
+feature_extractors:
+  file_format:
+    description: "Extract file extension and MIME type"
+    method: "file_extension_and_mime_type"
+    priority: 1
+    examples:
+      - pdf: "application/pdf"
+      - xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      - csv: "text/csv"
+      - png: "image/png"
+      - jpg: "image/jpeg"
+
+  page_count:
+    description: "Count total pages (PDF) or sheets (Excel)"
+    method: "pypdf_page_count_or_openpyxl_sheet_count"
+    priority: 1
+    applicable_formats: ["pdf", "xlsx"]
+
+  line_count:
+    description: "Count total lines (CSV/text files)"
+    method: "wc_minus_l_equivalent"
+    priority: 1
+    applicable_formats: ["csv", "txt"]
+
+  has_searchable_text:
+    description: "Check if PDF has embedded text layer"
+    method: "pypdf_extract_text_check"
+    priority: 2
+    applicable_formats: ["pdf"]
+    returns: "boolean"
+
+  is_scanned:
+    description: "Detect if PDF is scanned image vs digital"
+    method: "check_text_to_image_ratio"
+    priority: 2
+    applicable_formats: ["pdf"]
+    threshold: 0.1  # <10% text = scanned
+    returns: "boolean"
+
+  has_tables:
+    description: "Detect presence of table structures"
+    method: "camelot_or_tabula_detection"
+    priority: 3
+    applicable_formats: ["pdf", "xlsx"]
+    returns: "boolean"
+
+  table_count:
+    description: "Count number of tables in document"
+    method: "camelot_table_count"
+    priority: 3
+    applicable_formats: ["pdf"]
+    returns: "integer"
+
+  table_complexity:
+    description: "Assess table structure complexity"
+    method: "analyze_merged_cells_and_nested_structure"
+    priority: 4
+    applicable_formats: ["pdf", "xlsx"]
+    returns: ["simple", "medium", "high"]
+    criteria:
+      simple: "No merged cells, uniform columns"
+      medium: "Some merged cells, varied column widths"
+      high: "Nested tables, complex merges, irregular structure"
+
+  has_images:
+    description: "Detect embedded images"
+    method: "pypdf_image_extraction_check"
+    priority: 3
+    applicable_formats: ["pdf"]
+    returns: "boolean"
+
+  image_count:
+    description: "Count embedded images"
+    method: "pypdf_image_count"
+    priority: 3
+    applicable_formats: ["pdf"]
+    returns: "integer"
+
+  scan_quality:
+    description: "Assess scan DPI and clarity"
+    method: "pillow_dpi_check_and_edge_detection"
+    priority: 3
+    applicable_formats: ["pdf", "png", "jpg"]
+    returns: ["good", "medium", "poor"]
+    thresholds:
+      good: ">300 DPI, sharp edges"
+      medium: "150-300 DPI, moderate clarity"
+      poor: "<150 DPI, blurred, artifacts"
+
+  has_handwriting:
+    description: "Detect handwritten content"
+    method: "stroke_width_variation_analysis"
+    priority: 4
+    applicable_formats: ["pdf", "png", "jpg"]
+    returns: "boolean"
+
+  text_density:
+    description: "Calculate text coverage percentage"
+    method: "text_area_to_page_area_ratio"
+    priority: 3
+    applicable_formats: ["pdf"]
+    returns: ["high", "medium", "low"]
+    thresholds:
+      high: ">80% text coverage"
+      medium: "30-80% text coverage"
+      low: "<30% text coverage"
+
+  layout_complexity:
+    description: "Assess page layout complexity"
+    method: "column_count_and_region_segmentation"
+    priority: 4
+    applicable_formats: ["pdf"]
+    returns: ["simple", "medium", "high"]
+    criteria:
+      simple: "Single column, linear flow"
+      medium: "Multi-column, headers/footers"
+      high: "Complex regions, overlapping elements"
+
+  has_formulas:
+    description: "Detect Excel formulas"
+    method: "openpyxl_formula_check"
+    priority: 3
+    applicable_formats: ["xlsx"]
+    returns: "boolean"
+
+  encoding_issues:
+    description: "Detect encoding problems in text files"
+    method: "chardet_confidence_check"
+    priority: 2
+    applicable_formats: ["csv", "txt"]
+    returns: "boolean"
+    threshold: 0.9  # <90% confidence = issues
+
+# ============================================================================
+# PARSER SELECTION LOGIC
+# ============================================================================
+
+parser_selection_strategy:
+  method: "tier_based_routing"
+  description: "Route to parser based on classified complexity tier"
+
+  routing_rules:
+    tier_1_to_3:
+      condition: "tier in [tier_1, tier_2, tier_3]"
+      primary_parser: "SOL-08"  # Pandas for structured data
+      reason: "Structured data best handled by direct DataFrame parsing"
+
+    tier_4_to_7:
+      condition: "tier in [tier_4, tier_5, tier_6, tier_7]"
+      primary_parser: "SOL-04"  # Docling for PDFs
+      reason: "Complex PDFs with tables benefit from Docling's layout analysis"
+
+    tier_8_to_11:
+      condition: "tier in [tier_8, tier_9, tier_10, tier_11]"
+      primary_parser: "SOL-05"  # Gemini Vision for advanced cases
+      reason: "Poor quality, handwritten, or damaged docs need multimodal AI"
+
+  fallback_strategy:
+    max_retries: 2
+    retry_conditions:
+      - "quality_score < 0.85"
+      - "extraction_failed"
+      - "parser_timeout"
+
+    fallback_order:
+      tier_1: ["SOL-08", "SOL-04", "SOL-05"]
+      tier_2: ["SOL-08", "SOL-04", "SOL-05"]
+      tier_3: ["SOL-04", "SOL-05", "SOL-08"]
+      tier_4: ["SOL-04", "SOL-05", "SOL-08"]
+      tier_5: ["SOL-05", "SOL-04"]
+      tier_6: ["SOL-04", "SOL-05"]
+      tier_7: ["SOL-05", "SOL-04"]
+      tier_8: ["SOL-05", "SOL-04"]
+      tier_9: ["SOL-05"]  # No fallback
+      tier_10: ["SOL-05"]  # No fallback
+      tier_11: ["SOL-05"]  # No fallback
+
+# ============================================================================
+# PERFORMANCE BENCHMARKS
+# ============================================================================
+
+performance_benchmarks:
+  classification_time:
+    target_ms: 800
+    max_acceptable_ms: 1500
+    description: "Time to classify complexity tier"
+
+  total_pipeline_time:
+    spec_01_target_s: 25
+    per_tier:
+      tier_1: 3
+      tier_2: 5
+      tier_3: 10
+      tier_4: 15
+      tier_5: 18
+      tier_6: 30
+      tier_7: 25
+      tier_8: 35
+      tier_9: 45
+      tier_10: 50
+      tier_11: 60
+
+  quality_gate_thresholds:
+    tier_1_to_3: 0.90
+    tier_4_to_6: 0.85
+    tier_7_to_9: 0.80
+    tier_10_to_11: 0.70
+
+# ============================================================================
+# END OF COMPLEXITY MATRIX
+# ============================================================================

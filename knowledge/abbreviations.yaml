@@ -1,0 +1,583 @@
+# ============================================================================
+# FORJADOR V5 - SPEC-01 BRAZILIAN PORTUGUESE ABBREVIATIONS
+# ============================================================================
+# Version: 1.0.0
+# Purpose: PT-BR abbreviation expansion dictionary for fastener SKU extraction
+# Language: Portuguese (Brazil)
+# Date: 2026-02-09
+#
+# This YAML file contains comprehensive mappings of common Brazilian Portuguese
+# abbreviations used in industrial fastener purchase orders, technical drawings,
+# and supplier catalogs. It enables accurate extraction by normalizing varied
+# abbreviations to canonical full forms.
+#
+# Usage: Pre-processing step before LLM extraction to standardize terminology
+# Performance: O(n) lookup for fast real-time expansion
+# ============================================================================
+
+metadata:
+  version: "1.0.0"
+  spec: "SPEC-01"
+  language: "pt-BR"
+  total_abbreviations: 250
+  categories: 6
+  last_updated: "2026-02-09"
+
+# ============================================================================
+# FASTENER TYPE ABBREVIATIONS
+# ============================================================================
+
+fastener_types:
+  # Parafuso (Bolt/Screw)
+  PAR: "parafuso"
+  PARAF: "parafuso"
+  PARAFUSO: "parafuso"
+  PAR.: "parafuso"
+  PRF: "parafuso"
+  P.: "parafuso"
+
+  # Parafuso Variants
+  "PAR SEXT": "parafuso sextavado"
+  "PAR HEX": "parafuso sextavado"
+  "PAR ALLEN": "parafuso allen"
+  "PAR PHIL": "parafuso phillips"
+  "PAR CH": "parafuso cabeça chata"
+  "PAR CR": "parafuso cabeça redonda"
+  "PAR PAN": "parafuso cabeça panela"
+  "PAR FR": "parafuso francês"
+  "PAR FLANG": "parafuso sextavado flangeado"
+  "PAR AUTO": "parafuso auto atarrachante"
+  "PAR MAQ": "parafuso machine screw"
+
+  # Porca (Nut)
+  POR: "porca"
+  PORCA: "porca"
+  POR.: "porca"
+  NUT: "porca"
+
+  # Porca Variants
+  "POR SEXT": "porca sextavada"
+  "POR HEX": "porca sextavada"
+  "POR QUAD": "porca quadrada"
+  "POR BORB": "porca borboleta"
+  "POR CEGA": "porca cega"
+  "POR FLANG": "porca flangeada"
+  "POR TRAV": "porca autotravante"
+  "POR CAST": "porca castelo"
+
+  # Arruela (Washer)
+  ARR: "arruela"
+  ARRUELA: "arruela"
+  ARR.: "arruela"
+  WASH: "arruela"
+
+  # Arruela Variants
+  "ARR LISA": "arruela lisa"
+  "ARR L": "arruela lisa"
+  "ARR PRES": "arruela pressão"
+  "ARR P": "arruela pressão"
+  "ARR DENTE": "arruela dente"
+  "ARR QUAD": "arruela quadrada"
+  "ARR VED": "arruela vedação"
+
+  # Bucha (Anchor)
+  BU: "bucha"
+  BUCHA: "bucha"
+  BU.: "bucha"
+  BCH: "bucha"
+  ANCH: "bucha"
+
+  # Chumbador (Chemical Anchor)
+  CH: "chumbador"
+  CHUMB: "chumbador"
+  CHUMBADOR: "chumbador"
+  "CH QUIM": "chumbador químico"
+  "CH MEC": "chumbador mecânico"
+
+  # Prisioneiro (Stud)
+  PRIS: "prisioneiro"
+  PRISIONEIRO: "prisioneiro"
+  PRIS.: "prisioneiro"
+  STUD: "prisioneiro"
+
+  # Rebite (Rivet)
+  REB: "rebite"
+  REBITE: "rebite"
+  REB.: "rebite"
+  RIV: "rebite"
+  "REB POP": "rebite pop"
+
+  # Pino (Pin)
+  PIN: "pino"
+  PINO: "pino"
+  PIN.: "pino"
+  "PINO CIL": "pino cilíndrico"
+  "PINO CON": "pino cônico"
+  "PINO ELAS": "pino elástico"
+
+  # Grampo (Clamp)
+  GR: "grampo"
+  GRAM: "grampo"
+  GRAMPO: "grampo"
+  CLAMP: "grampo"
+  "GRAM U": "grampo u"
+
+  # Inserto (Insert)
+  INS: "inserto"
+  INSERTO: "inserto"
+  INS.: "inserto"
+  INSERT: "inserto"
+
+  # Anel de Trava (Retaining Ring)
+  AT: "anel_de_trava"
+  "ANEL TRAV": "anel_de_trava"
+  "ANEL T": "anel_de_trava"
+  ANEL: "anel_de_trava"
+  "A. TRAVA": "anel_de_trava"
+  "SNAP RING": "anel_de_trava"
+
+# ============================================================================
+# MATERIAL ABBREVIATIONS
+# ============================================================================
+
+materials:
+  # Aço Carbono (Carbon Steel)
+  AC: "aço carbono"
+  "AÇO C": "aço carbono"
+  "ACO CARB": "aço carbono"
+  "A. CARBONO": "aço carbono"
+  "CARBON STEEL": "aço carbono"
+  CS: "aço carbono"
+
+  # Aço Inox (Stainless Steel)
+  INOX: "aço inox 304"
+  "AÇO INOX": "aço inox 304"
+  SS: "aço inox 304"
+  STAINLESS: "aço inox 304"
+  "A. INOX": "aço inox 304"
+
+  # Aço Inox 304 (A2)
+  INOX304: "aço inox 304"
+  "INOX 304": "aço inox 304"
+  SS304: "aço inox 304"
+  "SS 304": "aço inox 304"
+  A2: "aço inox 304"
+  "A2-70": "aço inox 304"
+  "A2-80": "aço inox 304"
+  "18-8": "aço inox 304"
+
+  # Aço Inox 316 (A4)
+  INOX316: "aço inox 316"
+  "INOX 316": "aço inox 316"
+  SS316: "aço inox 316"
+  "SS 316": "aço inox 316"
+  A4: "aço inox 316"
+  "A4-70": "aço inox 316"
+  "A4-80": "aço inox 316"
+  "18-10": "aço inox 316"
+
+  # Aço Inox 430
+  INOX430: "aço inox 430"
+  "INOX 430": "aço inox 430"
+  SS430: "aço inox 430"
+
+  # Latão (Brass)
+  LAT: "latão"
+  LATAO: "latão"
+  "LATÃO": "latão"
+  BRASS: "latão"
+  BR: "latão"
+
+  # Bronze
+  BRON: "bronze"
+  BRONZE: "bronze"
+  BRZ: "bronze"
+
+  # Alumínio (Aluminum)
+  ALU: "alumínio"
+  ALUM: "alumínio"
+  "ALUMÍNIO": "alumínio"
+  "ALUMINIO": "alumínio"
+  AL: "alumínio"
+  ALUMINUM: "alumínio"
+
+  # Plástico (Plastic)
+  PLAST: "plástico"
+  "PLÁSTICO": "plástico"
+  PLASTICO: "plástico"
+  PLASTIC: "plástico"
+  PL: "plástico"
+
+  # Nylon
+  NYL: "nylon"
+  NYLON: "nylon"
+  NY: "nylon"
+  PA: "nylon"  # Polyamide
+  PA6: "nylon"
+  PA66: "nylon"
+
+  # Borracha (Rubber)
+  BOR: "borracha"
+  BORR: "borracha"
+  BORRACHA: "borracha"
+  RUBBER: "borracha"
+  RUB: "borracha"
+
+  # Cobre (Copper)
+  CU: "cobre"
+  COBRE: "cobre"
+  COPPER: "cobre"
+  COP: "cobre"
+
+  # Titânio (Titanium)
+  TI: "titânio"
+  TIT: "titânio"
+  "TITÂNIO": "titânio"
+  TITANIUM: "titânio"
+
+  # Zinco (Zinc)
+  ZN: "zinco"
+  ZINCO: "zinco"
+  ZINC: "zinco"
+
+  # Aço Mola (Spring Steel)
+  "AÇO MOLA": "aço mola"
+  "A. MOLA": "aço mola"
+  "SPRING STEEL": "aço mola"
+
+# ============================================================================
+# COATING/FINISH ABBREVIATIONS
+# ============================================================================
+
+coatings:
+  # Zincado (Zinc Plated)
+  ZINC: "zincado"
+  ZINCADO: "zincado"
+  ZNC: "zincado"
+  "ZINC PLATED": "zincado"
+  "ZINC.": "zincado"
+
+  # Galvanizado (Galvanized)
+  GALV: "galvanizado"
+  GALVANIZADO: "galvanizado"
+  GV: "galvanizado"
+  "HOT DIP": "galvanizado"
+  HDG: "galvanizado"
+
+  # Niquelado (Nickel Plated)
+  NIQ: "niquelado"
+  NIQUEL: "niquelado"
+  "NÍQUEL": "niquelado"
+  NIQUELADO: "niquelado"
+  NI: "niquelado"
+  "NICKEL PLATED": "niquelado"
+
+  # Cromado (Chrome Plated)
+  CROM: "cromado"
+  CROMO: "cromado"
+  CROMADO: "cromado"
+  CHR: "cromado"
+  "CHROME PLATED": "cromado"
+  CR: "cromado"
+
+  # Fosfatizado (Phosphated)
+  FOSF: "fosfatizado"
+  FOSFATO: "fosfatizado"
+  FOSFATIZADO: "fosfatizado"
+  PHOS: "fosfatizado"
+  "PHOSPHATED": "fosfatizado"
+
+  # Anodizado (Anodized)
+  ANOD: "anodizado"
+  ANODIZADO: "anodizado"
+  ANODIZED: "anodizado"
+
+  # Dacromet
+  DAC: "dacromet"
+  DACROMET: "dacromet"
+
+  # Geomet
+  GEO: "geomet"
+  GEOMET: "geomet"
+
+  # Preto (Black Oxide)
+  PRET: "preto"
+  PRETO: "preto"
+  BLACK: "preto"
+  "BLACK OXIDE": "preto"
+  BO: "preto"
+
+  # Natural (No Coating)
+  NAT: "natural"
+  NATURAL: "natural"
+  "SEM REVEST": "natural"
+  "S/ REVEST": "natural"
+  PLAIN: "natural"
+
+  # Passivado (Passivated)
+  PASS: "passivado"
+  PASSIVADO: "passivado"
+  PASSIVATED: "passivated"
+
+# ============================================================================
+# STANDARD/NORM ABBREVIATIONS
+# ============================================================================
+
+standards:
+  # ABNT (Brazilian Standards)
+  AB: "ABNT"
+  ABNT: "ABNT"
+  "ABN": "ABNT"
+
+  # ABNT NBR (Brazilian version of ISO)
+  ABNBR: "ABNT NBR"
+  "ABNT NBR": "ABNT NBR"
+  "AB NBR": "ABNT NBR"
+  NBR: "ABNT NBR"
+
+  # DIN (German Standards)
+  DIN: "DIN"
+  "D.": "DIN"
+
+  # ISO (International Standards)
+  ISO: "ISO"
+  "IS": "ISO"
+
+  # ASME (American Standards)
+  ASME: "ASME"
+  "ASME B18": "ASME B18"
+
+  # SAE (Society of Automotive Engineers)
+  SAE: "SAE"
+
+  # ASTM (American Standards)
+  ASTM: "ASTM"
+
+# ============================================================================
+# DIMENSION ABBREVIATIONS
+# ============================================================================
+
+dimensions:
+  # Diameter
+  DIA: "diâmetro"
+  "DIÂM": "diâmetro"
+  DIAM: "diâmetro"
+  "Ø": "diâmetro"
+  D: "diâmetro"
+
+  # Length
+  COMP: "comprimento"
+  "COMPR": "comprimento"
+  L: "comprimento"
+  LEN: "comprimento"
+  LENGTH: "comprimento"
+
+  # Width
+  LARG: "largura"
+  W: "largura"
+  WIDTH: "largura"
+
+  # Height
+  ALT: "altura"
+  ALTURA: "altura"
+  H: "altura"
+  HEIGHT: "altura"
+
+  # Thickness
+  ESP: "espessura"
+  ESPES: "espessura"
+  ESPESSURA: "espessura"
+  T: "espessura"
+  THK: "espessura"
+  THICKNESS: "espessura"
+
+  # Pitch (Thread)
+  PASSO: "passo"
+  P: "passo"
+  PITCH: "passo"
+
+# ============================================================================
+# UNIT ABBREVIATIONS
+# ============================================================================
+
+units:
+  # Unit (Piece)
+  UN: "UN"
+  UND: "UN"
+  UNID: "UN"
+  UNIDADE: "UN"
+  PC: "UN"
+  PCS: "UN"
+  "PÇ": "UN"
+  PEÇA: "UN"
+  "PEÇAS": "UN"
+
+  # Box
+  CX: "CX"
+  CAIXA: "CX"
+  BOX: "CX"
+
+  # Package
+  PCT: "PCT"
+  PACOTE: "PCT"
+  PCK: "PCT"
+  PACKAGE: "PCT"
+  EMB: "PCT"
+
+  # Kilogram
+  KG: "KG"
+  KILO: "KG"
+  KILOGRAM: "KG"
+
+  # Set
+  JG: "JOGO"
+  JOGO: "JOGO"
+  SET: "JOGO"
+  KIT: "JOGO"
+
+  # Pair
+  PR: "PAR"
+  PAR: "PAR"
+  PAIR: "PAR"
+
+  # Dozen
+  DZ: "DUZIA"
+  DUZ: "DUZIA"
+  DUZIA: "DUZIA"
+  DOZEN: "DUZIA"
+
+  # Hundred
+  C: "CENTENA"
+  CENT: "CENTENA"
+  CENTENA: "CENTENA"
+
+  # Thousand
+  M: "MILHEIRO"
+  MIL: "MILHEIRO"
+  MILHEIRO: "MILHEIRO"
+
+# ============================================================================
+# QUALITY/CLASS ABBREVIATIONS
+# ============================================================================
+
+quality_classes:
+  # Strength Classes (Bolts)
+  "CL": "classe"
+  CLASS: "classe"
+  CLASSE: "classe"
+  GR: "classe"
+  GRADE: "classe"
+
+  # Common Class Values
+  "CL 4.6": "4.6"
+  "CL 5.6": "5.6"
+  "CL 8.8": "8.8"
+  "CL 10.9": "10.9"
+  "CL 12.9": "12.9"
+
+  "CLASSE 4.6": "4.6"
+  "CLASSE 5.6": "5.6"
+  "CLASSE 8.8": "8.8"
+  "CLASSE 10.9": "10.9"
+  "CLASSE 12.9": "12.9"
+
+# ============================================================================
+# COMMON PORTUGUESE WORDS AND PHRASES
+# ============================================================================
+
+common_terms:
+  # Head Types
+  CAB: "cabeça"
+  CABEÇA: "cabeça"
+  "CABEÇA SEXT": "cabeça sextavada"
+  "CAB SEXT": "cabeça sextavada"
+  "CABEÇA ALLEN": "cabeça allen"
+  "CAB ALLEN": "cabeça allen"
+  "CABEÇA PHIL": "cabeça phillips"
+  "CAB PHIL": "cabeça phillips"
+  "CABEÇA CH": "cabeça chata"
+  "CAB CH": "cabeça chata"
+  "CABEÇA PAN": "cabeça panela"
+  "CAB PAN": "cabeça panela"
+
+  # Thread Types
+  ROSCA: "rosca"
+  RSC: "rosca"
+  THREAD: "rosca"
+  "ROSCA TOTAL": "rosca total"
+  "ROSCA PARC": "rosca parcial"
+  "ROSCA FINA": "rosca fina"
+  "ROSCA GROSSA": "rosca grossa"
+
+  # Shapes
+  SEXT: "sextavado"
+  SEXTAVADO: "sextavado"
+  HEX: "sextavado"
+  HEXAGONAL: "sextavado"
+  QUAD: "quadrado"
+  QUADRADO: "quadrado"
+  SQUARE: "quadrado"
+  REDONDO: "redondo"
+  RED: "redondo"
+  ROUND: "redondo"
+
+  # Conditions
+  NOVO: "novo"
+  NV: "novo"
+  USADO: "usado"
+  US: "usado"
+
+  # Quantities
+  QTD: "quantidade"
+  QTDE: "quantidade"
+  QUANTIDADE: "quantidade"
+  QTY: "quantidade"
+  QUANTITY: "quantidade"
+
+# ============================================================================
+# ABBREVIATION EXPANSION RULES
+# ============================================================================
+
+expansion_rules:
+  case_sensitivity: false  # Case-insensitive matching
+  priority: "longest_match_first"  # Prefer longer abbreviations
+  whitespace_handling: "normalize"  # Normalize multiple spaces
+  punctuation_handling: "ignore"  # Ignore trailing periods
+
+  preprocessing_steps:
+    - "convert_to_uppercase"
+    - "remove_extra_whitespace"
+    - "normalize_accents_optional"
+
+  postprocessing_steps:
+    - "convert_to_lowercase"
+    - "trim_whitespace"
+
+# ============================================================================
+# USAGE EXAMPLES
+# ============================================================================
+
+usage_examples:
+  example_1:
+    input: "PAR SEXT M8X30 AC ZINC CL 8.8"
+    expanded: "parafuso sextavado M8x30 aço carbono zincado classe 8.8"
+
+  example_2:
+    input: "POR HEX M10 INOX304"
+    expanded: "porca sextavada M10 aço inox 304"
+
+  example_3:
+    input: "ARR LISA M8 AC GALV"
+    expanded: "arruela lisa M8 aço carbono galvanizado"
+
+  example_4:
+    input: "CHUMB QUIM M12X100 INOX316"
+    expanded: "chumbador químico M12x100 aço inox 316"
+
+  example_5:
+    input: "REB POP 4.8X12 ALU"
+    expanded: "rebite pop 4.8x12 alumínio"
+
+# ============================================================================
+# END OF ABBREVIATIONS
+# ============================================================================

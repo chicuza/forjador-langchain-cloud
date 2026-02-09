@@ -1,0 +1,1220 @@
+# ============================================================================
+# FORJADOR V5 - SPEC-01 BUSINESS VALIDATION RULES
+# ============================================================================
+# Version: 1.0.0
+# Purpose: Centralized business logic for industrial fastener SKU validation
+# Language: Portuguese (Brazil)
+# Date: 2026-02-09
+#
+# This YAML file defines comprehensive business rules for validating fastener
+# SKUs extracted from purchase orders. It complements Pydantic structural
+# validation with domain-specific business logic.
+#
+# Validation Strategy:
+# - Pydantic: Structure, data types, basic format
+# - YAML (this file): Material compatibility, coating rules, standards
+#
+# Performance: Optimized for < 3 seconds validation of 4000 SKUs
+# ============================================================================
+
+metadata:
+  version: "1.0.0"
+  spec: "SPEC-01"
+  language: "pt-BR"
+  total_fastener_types: 11
+  total_subtypes: 57
+  total_materials: 15
+  last_updated: "2026-02-09"
+  maintainer: "Forjador Data Architecture Team"
+
+# ============================================================================
+# FASTENER TYPE VALIDATION RULES
+# ============================================================================
+# Structure for each fastener type:
+#   - subtypes: Specific variants of this fastener type
+#   - materials: Allowed materials for this type
+#   - classes: Mechanical strength classes (if applicable)
+#   - coating_rules: Material-specific coating requirements
+#   - material_class_compatibility: Which classes are valid for each material
+#   - dimension_pattern: Regex pattern for dimension validation
+#   - standards: Applicable technical standards (ABNT, DIN, ISO, etc.)
+# ============================================================================
+
+fastener_validation_rules:
+
+  # ==========================================================================
+  # TYPE 1: PARAFUSO (Bolt/Screw) - 12 subtypes
+  # ==========================================================================
+  parafuso:
+    description: "Threaded fastener with external thread, used with nut or threaded hole"
+
+    subtypes:
+      - sextavado              # Hex head bolt
+      - allen                  # Socket head cap screw (Allen key)
+      - phillips               # Phillips head screw
+      - cabeça_chata          # Flat head screw
+      - cabeça_redonda        # Round head screw
+      - cabeça_panela         # Pan head screw
+      - francês               # Carriage bolt
+      - sextavado_flangeado   # Flanged hex bolt
+      - auto_atarrachante     # Self-tapping screw
+      - chipboard             # Chipboard screw
+      - machine_screw         # Machine screw
+      - wood_screw            # Wood screw
+
+    materials:
+      - aço carbono           # Carbon steel (most common)
+      - aço inox 304          # Stainless steel 304 (A2)
+      - aço inox 316          # Stainless steel 316 (A4) - marine grade
+      - aço inox 430          # Stainless steel 430 - ferritic
+      - latão                 # Brass
+      - bronze                # Bronze
+      - alumínio              # Aluminum
+      - plástico              # Plastic
+      - nylon                 # Nylon
+
+    classes:
+      - "4.6"                 # Low strength - general purpose
+      - "5.6"                 # Low-medium strength
+      - "8.8"                 # Medium-high strength (most common)
+      - "10.9"                # High strength
+      - "12.9"                # Very high strength
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado            # Zinc plated (most common)
+          - galvanizado        # Hot-dip galvanized
+          - niquelado          # Nickel plated
+          - cromado            # Chrome plated
+          - dacromet           # Dacromet coating
+          - geomet             # Geomet coating
+          - fosfatizado        # Phosphated
+          - preto              # Black oxide
+        required_coating: true
+        reason: "Aço carbono requer proteção contra corrosão"
+        default_coating: "zincado"
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural            # No coating needed
+          - passivado          # Passivated (enhanced corrosion resistance)
+        required_coating: false
+        reason: "Aço inox já possui resistência à corrosão natural"
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+        reason: "Aço inox 316 possui alta resistência à corrosão (grau marinho)"
+
+      aço_inox_430:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+        reason: "Aço inox 430 possui resistência à corrosão moderada"
+
+      alumínio:
+        allowed_coatings:
+          - anodizado          # Anodized
+          - natural
+        required_coating: false
+        reason: "Alumínio pode ser anodizado para maior durabilidade"
+
+      latão:
+        allowed_coatings:
+          - natural
+          - niquelado
+          - cromado
+        required_coating: false
+        reason: "Latão possui boa resistência à corrosão natural"
+
+      bronze:
+        allowed_coatings:
+          - natural
+        required_coating: false
+        reason: "Bronze possui excelente resistência à corrosão"
+
+      plástico:
+        allowed_coatings: []
+        required_coating: false
+        reason: "Plástico não aceita revestimento metálico"
+
+      nylon:
+        allowed_coatings: []
+        required_coating: false
+        reason: "Nylon não aceita revestimento metálico"
+
+    material_class_compatibility:
+      aço_carbono:
+        allowed_classes: ["4.6", "5.6", "8.8", "10.9", "12.9"]
+        typical_class: "8.8"
+
+      aço_inox_304:
+        allowed_classes: ["8.8", "10.9"]  # A2-70, A2-80 equivalents
+        typical_class: "8.8"
+        notes: "Classes correspond to A2-70 (8.8) and A2-80 (10.9)"
+
+      aço_inox_316:
+        allowed_classes: ["8.8", "10.9"]  # A4-70, A4-80 equivalents
+        typical_class: "8.8"
+        notes: "Classes correspond to A4-70 (8.8) and A4-80 (10.9)"
+
+      aço_inox_430:
+        allowed_classes: ["8.8"]
+        typical_class: "8.8"
+
+      latão:
+        allowed_classes: []
+        reason: "Latão não possui classificação de resistência mecânica padrão"
+
+      bronze:
+        allowed_classes: []
+        reason: "Bronze não possui classificação de resistência mecânica padrão"
+
+      alumínio:
+        allowed_classes: []
+        reason: "Alumínio não possui classificação de resistência mecânica padrão"
+
+      plástico:
+        allowed_classes: []
+        reason: "Plástico não possui classificação de resistência mecânica"
+
+      nylon:
+        allowed_classes: []
+        reason: "Nylon não possui classificação de resistência mecânica"
+
+    dimension_patterns:
+      - pattern: "^M\\d+(\\.\\d+)?$"
+        description: "Diameter only (M8, M10, M12)"
+        examples: ["M8", "M10", "M12", "M16"]
+
+      - pattern: "^M\\d+(\\.\\d+)?x\\d+(\\.\\d+)?$"
+        description: "Diameter x Length (M8x30)"
+        examples: ["M8x30", "M10x50", "M12x100"]
+
+      - pattern: "^M\\d+(\\.\\d+)?x\\d+(\\.\\d+)?x\\d+(\\.\\d+)?$"
+        description: "Diameter x Pitch x Length (M8x1.25x30)"
+        examples: ["M8x1.25x30", "M10x1.5x50", "M12x1.75x100"]
+
+    standards:
+      - ABNT NBR ISO 4014     # Hex head bolts - partial thread
+      - ABNT NBR ISO 4017     # Hex head bolts - full thread
+      - DIN 933               # Hex head bolts - full thread
+      - DIN 931               # Hex head bolts - partial thread
+      - ISO 4014              # Hex head bolts - partial thread
+      - ISO 4017              # Hex head bolts - full thread
+      - ASME B18.2.1          # Square and hex bolts and screws
+
+  # ==========================================================================
+  # TYPE 2: PORCA (Nut) - 8 subtypes
+  # ==========================================================================
+  porca:
+    description: "Internally threaded fastener used with bolt or threaded rod"
+
+    subtypes:
+      - sextavada             # Hex nut (most common)
+      - quadrada              # Square nut
+      - borboleta             # Wing nut
+      - cega                  # Cap nut / Acorn nut
+      - flangeada             # Flange nut
+      - autotravante          # Lock nut / Self-locking nut
+      - castelo               # Castle nut
+      - baixa                 # Jam nut / Thin nut
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço inox 316
+      - aço inox 430
+      - latão
+      - bronze
+      - alumínio
+      - plástico
+      - nylon
+
+    classes:
+      - "4"                   # Corresponds to bolt class 4.6/4.8
+      - "5"                   # Corresponds to bolt class 5.6/5.8
+      - "8"                   # Corresponds to bolt class 8.8
+      - "10"                  # Corresponds to bolt class 10.9
+      - "12"                  # Corresponds to bolt class 12.9
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - galvanizado
+          - niquelado
+          - cromado
+          - dacromet
+          - geomet
+          - fosfatizado
+          - preto
+        required_coating: true
+        reason: "Aço carbono requer proteção contra corrosão"
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+        reason: "Aço inox possui resistência à corrosão natural"
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      aço_inox_430:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      alumínio:
+        allowed_coatings:
+          - anodizado
+          - natural
+        required_coating: false
+
+      latão:
+        allowed_coatings:
+          - natural
+          - niquelado
+        required_coating: false
+
+      bronze:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      plástico:
+        allowed_coatings: []
+        required_coating: false
+
+      nylon:
+        allowed_coatings: []
+        required_coating: false
+
+    material_class_compatibility:
+      aço_carbono:
+        allowed_classes: ["4", "5", "8", "10", "12"]
+        typical_class: "8"
+
+      aço_inox_304:
+        allowed_classes: ["8", "10"]
+        typical_class: "8"
+
+      aço_inox_316:
+        allowed_classes: ["8", "10"]
+        typical_class: "8"
+
+      aço_inox_430:
+        allowed_classes: ["8"]
+        typical_class: "8"
+
+      latão:
+        allowed_classes: []
+
+      bronze:
+        allowed_classes: []
+
+      alumínio:
+        allowed_classes: []
+
+      plástico:
+        allowed_classes: []
+
+      nylon:
+        allowed_classes: []
+
+    dimension_patterns:
+      - pattern: "^M\\d+(\\.\\d+)?$"
+        description: "Thread diameter only (M8, M10)"
+        examples: ["M8", "M10", "M12", "M16"]
+
+    standards:
+      - ABNT NBR ISO 4032     # Hex nuts - Style 1
+      - ABNT NBR ISO 4033     # Hex nuts - Style 2 (higher)
+      - DIN 934               # Hex nuts
+      - DIN 985               # Lock nuts with nylon insert
+      - ISO 4032              # Hex nuts - Style 1
+      - ISO 7040              # Lock nuts
+      - ASME B18.2.2          # Nuts
+
+  # ==========================================================================
+  # TYPE 3: ARRUELA (Washer) - 7 subtypes
+  # ==========================================================================
+  arruela:
+    description: "Thin plate with hole, used to distribute load and prevent loosening"
+
+    subtypes:
+      - lisa                  # Flat washer (most common)
+      - pressão               # Spring washer / Lock washer
+      - dente                 # Toothed lock washer
+      - quadrada              # Square washer
+      - conical               # Conical washer / Belleville washer
+      - vedação               # Sealing washer
+      - ondulada              # Wave washer
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço inox 316
+      - aço inox 430
+      - latão
+      - bronze
+      - alumínio
+      - plástico
+      - borracha              # For sealing washers
+      - cobre                 # For sealing washers
+
+    classes: []  # Washers don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - galvanizado
+          - fosfatizado
+          - preto
+        required_coating: true
+        reason: "Aço carbono requer proteção contra corrosão"
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      aço_inox_430:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      alumínio:
+        allowed_coatings:
+          - anodizado
+          - natural
+        required_coating: false
+
+      latão:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      bronze:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      borracha:
+        allowed_coatings: []
+        required_coating: false
+
+      cobre:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      plástico:
+        allowed_coatings: []
+        required_coating: false
+
+    material_class_compatibility: {}  # No classes for washers
+
+    dimension_patterns:
+      - pattern: "^M\\d+(\\.\\d+)?$"
+        description: "Nominal size (M8, M10)"
+        examples: ["M8", "M10", "M12", "M16"]
+
+      - pattern: "^\\d+(\\.\\d+)?x\\d+(\\.\\d+)?x\\d+(\\.\\d+)?$"
+        description: "Inner diameter x Outer diameter x Thickness"
+        examples: ["8.4x16x1.6", "10.5x20x2"]
+
+    standards:
+      - ABNT NBR ISO 7089     # Flat washers - Normal series
+      - ABNT NBR ISO 7090     # Flat washers - Chamfered
+      - DIN 125               # Flat washers
+      - DIN 127               # Spring lock washers
+      - ISO 7089              # Flat washers - Normal series
+      - ISO 7093              # Flat washers - Large series
+      - ASME B18.21.1         # Washers
+
+  # ==========================================================================
+  # TYPE 4: BUCHA (Anchor/Wall Plug) - 6 subtypes
+  # ==========================================================================
+  bucha:
+    description: "Expansion anchor for securing fasteners in masonry, concrete, or drywall"
+
+    subtypes:
+      - nylon                 # Nylon wall plug (most common)
+      - plástica              # Plastic anchor
+      - metálica              # Metal anchor
+      - expansão              # Expansion anchor
+      - basculante            # Toggle bolt
+      - química               # Chemical anchor
+
+    materials:
+      - nylon
+      - plástico
+      - aço carbono           # For metal anchors
+      - aço inox 304
+      - zinco                 # Zinc alloy anchors
+
+    classes: []  # Anchors don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - galvanizado
+        required_coating: true
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      nylon:
+        allowed_coatings: []
+        required_coating: false
+
+      plástico:
+        allowed_coatings: []
+        required_coating: false
+
+      zinco:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+    material_class_compatibility: {}
+
+    dimension_patterns:
+      - pattern: "^S\\d+$"
+        description: "Size designation (S6, S8, S10)"
+        examples: ["S6", "S8", "S10", "S12"]
+
+      - pattern: "^\\d+x\\d+$"
+        description: "Diameter x Length (8x40)"
+        examples: ["6x30", "8x40", "10x50"]
+
+    standards:
+      - DIN 319               # Nylon plugs
+      - ISO 9001              # Quality standard
+
+  # ==========================================================================
+  # TYPE 5: CHUMBADOR (Chemical Anchor) - 4 subtypes
+  # ==========================================================================
+  chumbador:
+    description: "Heavy-duty anchor for structural applications in concrete"
+
+    subtypes:
+      - químico               # Chemical anchor (epoxy resin)
+      - mecânico              # Mechanical anchor
+      - expansão              # Expansion anchor
+      - gancho                # Hook anchor
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço inox 316          # For marine/corrosive environments
+
+    classes:
+      - "8.8"
+      - "10.9"
+      - "12.9"                # For high-strength applications
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - galvanizado
+          - zincado
+        required_coating: true
+        reason: "Exposição a umidade em concreto"
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+    material_class_compatibility:
+      aço_carbono:
+        allowed_classes: ["8.8", "10.9", "12.9"]
+        typical_class: "8.8"
+
+      aço_inox_304:
+        allowed_classes: ["8.8", "10.9"]
+        typical_class: "8.8"
+
+      aço_inox_316:
+        allowed_classes: ["8.8", "10.9"]
+        typical_class: "8.8"
+
+    dimension_patterns:
+      - pattern: "^M\\d+x\\d+$"
+        description: "Thread diameter x Embedment depth (M12x100)"
+        examples: ["M10x80", "M12x100", "M16x150"]
+
+    standards:
+      - ABNT NBR 15200        # Expansion anchors
+      - ETAG 001              # Metal anchors for use in concrete
+
+  # ==========================================================================
+  # TYPE 6: PRISIONEIRO (Stud/Threaded Rod) - 3 subtypes
+  # ==========================================================================
+  prisioneiro:
+    description: "Headless fastener threaded on both ends"
+
+    subtypes:
+      - rosca_total           # Fully threaded rod
+      - rosca_dupla           # Double-ended stud
+      - rosca_parcial         # Partially threaded stud
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço inox 316
+      - aço inox 430
+
+    classes:
+      - "4.6"
+      - "5.6"
+      - "8.8"
+      - "10.9"
+      - "12.9"
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - galvanizado
+          - fosfatizado
+        required_coating: true
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+          - passivado
+        required_coating: false
+
+      aço_inox_430:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+    material_class_compatibility:
+      aço_carbono:
+        allowed_classes: ["4.6", "5.6", "8.8", "10.9", "12.9"]
+        typical_class: "8.8"
+
+      aço_inox_304:
+        allowed_classes: ["8.8", "10.9"]
+        typical_class: "8.8"
+
+      aço_inox_316:
+        allowed_classes: ["8.8", "10.9"]
+        typical_class: "8.8"
+
+      aço_inox_430:
+        allowed_classes: ["8.8"]
+        typical_class: "8.8"
+
+    dimension_patterns:
+      - pattern: "^M\\d+x\\d+$"
+        description: "Thread diameter x Length (M8x1000)"
+        examples: ["M8x1000", "M10x2000", "M12x3000"]
+
+    standards:
+      - ABNT NBR ISO 4018     # Studs
+      - DIN 975               # Threaded rods
+      - DIN 976               # Threaded rods - metric
+      - ISO 4018              # Studs
+
+  # ==========================================================================
+  # TYPE 7: REBITE (Rivet) - 5 subtypes
+  # ==========================================================================
+  rebite:
+    description: "Permanent mechanical fastener with head and cylindrical shaft"
+
+    subtypes:
+      - cabeça_redonda        # Round head rivet
+      - cabeça_chata          # Flat head rivet
+      - pop                   # Pop rivet / Blind rivet (most common)
+      - estrutural            # Structural rivet
+      - tubular               # Tubular rivet
+
+    materials:
+      - alumínio              # Most common for pop rivets
+      - aço carbono
+      - aço inox 304
+      - aço inox 316
+      - cobre
+      - latão
+
+    classes: []  # Rivets don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - galvanizado
+        required_coating: true
+
+      alumínio:
+        allowed_coatings:
+          - anodizado
+          - natural
+        required_coating: false
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      cobre:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      latão:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+    material_class_compatibility: {}
+
+    dimension_patterns:
+      - pattern: "^\\d+(\\.\\d+)?x\\d+(\\.\\d+)?$"
+        description: "Diameter x Length (4.8x12)"
+        examples: ["3.2x8", "4.0x10", "4.8x12", "6.4x16"]
+
+    standards:
+      - ABNT NBR ISO 15973    # Blind rivets
+      - DIN 660               # Solid rivets
+      - DIN 7337              # Blind rivets
+      - ISO 15973             # Blind rivets
+      - ISO 15974             # Blind rivets - break pull type
+
+  # ==========================================================================
+  # TYPE 8: PINO (Pin/Dowel) - 5 subtypes
+  # ==========================================================================
+  pino:
+    description: "Cylindrical fastener for alignment and positioning"
+
+    subtypes:
+      - cilíndrico            # Cylindrical pin
+      - cônico                # Taper pin
+      - elástico              # Spring pin / Roll pin
+      - cavilha               # Cotter pin
+      - trava                 # Lock pin
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço inox 316
+      - latão
+      - bronze
+
+    classes: []  # Pins don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - fosfatizado
+          - preto
+        required_coating: true
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      latão:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      bronze:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+    material_class_compatibility: {}
+
+    dimension_patterns:
+      - pattern: "^\\d+(\\.\\d+)?x\\d+(\\.\\d+)?$"
+        description: "Diameter x Length (6x40)"
+        examples: ["3x20", "5x30", "6x40", "8x50"]
+
+    standards:
+      - ABNT NBR ISO 2338     # Parallel pins
+      - DIN 1              # Taper pins
+      - DIN 1481              # Spring pins
+      - ISO 2338              # Parallel pins
+      - ISO 8734              # Grooved pins
+
+  # ==========================================================================
+  # TYPE 9: GRAMPO (Clamp/U-Bolt) - 4 subtypes
+  # ==========================================================================
+  grampo:
+    description: "U-shaped fastener for securing pipes, cables, or components"
+
+    subtypes:
+      - u                     # U-bolt (most common)
+      - omega                 # Omega clamp
+      - fita                  # Band clamp
+      - mola                  # Spring clamp
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço inox 316
+      - alumínio
+
+    classes: []  # Clamps don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - galvanizado
+        required_coating: true
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      aço_inox_316:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      alumínio:
+        allowed_coatings:
+          - anodizado
+          - natural
+        required_coating: false
+
+    material_class_compatibility: {}
+
+    dimension_patterns:
+      - pattern: "^\\d+(\\.\\d+)?$"
+        description: "Pipe/cable diameter (25, 32, 50)"
+        examples: ["20", "25", "32", "40", "50"]
+
+      - pattern: "^M\\d+x\\d+x\\d+$"
+        description: "Thread x Width x Height (M8x50x100)"
+        examples: ["M8x50x100", "M10x60x120"]
+
+    standards:
+      - ABNT NBR 6674         # U-bolts
+
+  # ==========================================================================
+  # TYPE 10: INSERTO (Insert/Threaded Insert) - 4 subtypes
+  # ==========================================================================
+  inserto:
+    description: "Threaded insert for creating internal threads in soft materials"
+
+    subtypes:
+      - roscado               # Threaded insert
+      - expansão              # Expansion insert
+      - auto_roscante         # Self-tapping insert
+      - prensa                # Press-fit insert
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - latão
+      - bronze
+
+    classes: []  # Inserts don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - zincado
+          - fosfatizado
+        required_coating: true
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      latão:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      bronze:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+    material_class_compatibility: {}
+
+    dimension_patterns:
+      - pattern: "^M\\d+x\\d+(\\.\\d+)?$"
+        description: "Thread size x Length (M6x10)"
+        examples: ["M4x8", "M5x10", "M6x12", "M8x15"]
+
+    standards:
+      - DIN 8140              # Threaded inserts
+
+  # ==========================================================================
+  # TYPE 11: ANEL_DE_TRAVA (Retaining Ring/Snap Ring) - 3 subtypes
+  # ==========================================================================
+  anel_de_trava:
+    description: "Ring used to retain components on shafts or in bores"
+
+    subtypes:
+      - interno               # Internal retaining ring (for bores)
+      - externo               # External retaining ring (for shafts)
+      - espiral               # Spiral retaining ring
+
+    materials:
+      - aço carbono
+      - aço inox 304
+      - aço mola              # Spring steel
+
+    classes: []  # Retaining rings don't have mechanical strength classes
+
+    coating_rules:
+      aço_carbono:
+        allowed_coatings:
+          - fosfatizado
+          - preto
+          - zincado
+        required_coating: true
+
+      aço_inox_304:
+        allowed_coatings:
+          - natural
+        required_coating: false
+
+      aço_mola:
+        allowed_coatings:
+          - fosfatizado
+          - preto
+        required_coating: true
+
+    material_class_compatibility: {}
+
+    dimension_patterns:
+      - pattern: "^\\d+(\\.\\d+)?$"
+        description: "Shaft/bore diameter (15, 20, 25)"
+        examples: ["10", "15", "20", "25", "30"]
+
+    standards:
+      - DIN 471               # External retaining rings
+      - DIN 472               # Internal retaining rings
+      - ISO 4759              # Retaining rings
+
+# ============================================================================
+# GLOBAL MATERIAL DEFINITIONS
+# ============================================================================
+# Complete list of all materials used across fastener types
+# with properties and typical applications
+# ============================================================================
+
+global_materials:
+  aço_carbono:
+    description: "Carbon steel - most common material for general purpose fasteners"
+    properties:
+      - high_strength
+      - requires_corrosion_protection
+      - economical
+    typical_applications:
+      - construction
+      - automotive
+      - machinery
+    requires_coating: true
+
+  aço_inox_304:
+    description: "Stainless steel 304 (A2) - austenitic, good corrosion resistance"
+    properties:
+      - corrosion_resistant
+      - non_magnetic
+      - good_formability
+    typical_applications:
+      - food_processing
+      - chemical_industry
+      - outdoor_applications
+    requires_coating: false
+    equivalent_grades: ["A2", "18-8"]
+
+  aço_inox_316:
+    description: "Stainless steel 316 (A4) - marine grade, superior corrosion resistance"
+    properties:
+      - excellent_corrosion_resistance
+      - chloride_resistant
+      - non_magnetic
+    typical_applications:
+      - marine_environments
+      - chemical_processing
+      - pharmaceutical
+    requires_coating: false
+    equivalent_grades: ["A4", "18-10"]
+
+  aço_inox_430:
+    description: "Stainless steel 430 - ferritic, moderate corrosion resistance"
+    properties:
+      - moderate_corrosion_resistance
+      - magnetic
+      - economical_stainless
+    typical_applications:
+      - appliances
+      - automotive_trim
+      - indoor_applications
+    requires_coating: false
+
+  aço_mola:
+    description: "Spring steel - high carbon steel for spring applications"
+    properties:
+      - high_elasticity
+      - high_tensile_strength
+      - heat_treated
+    typical_applications:
+      - retaining_rings
+      - spring_washers
+      - clips
+    requires_coating: true
+
+  alumínio:
+    description: "Aluminum - lightweight, good corrosion resistance"
+    properties:
+      - lightweight
+      - corrosion_resistant
+      - non_magnetic
+      - electrically_conductive
+    typical_applications:
+      - aerospace
+      - electronics
+      - lightweight_structures
+    requires_coating: false
+
+  latão:
+    description: "Brass - copper-zinc alloy, excellent corrosion resistance"
+    properties:
+      - corrosion_resistant
+      - good_electrical_conductivity
+      - antimicrobial
+      - decorative
+    typical_applications:
+      - plumbing
+      - electrical
+      - decorative_hardware
+    requires_coating: false
+
+  bronze:
+    description: "Bronze - copper-tin alloy, excellent wear resistance"
+    properties:
+      - excellent_corrosion_resistance
+      - wear_resistant
+      - low_friction
+    typical_applications:
+      - marine_hardware
+      - bearings
+      - valve_components
+    requires_coating: false
+
+  cobre:
+    description: "Copper - excellent electrical/thermal conductivity"
+    properties:
+      - excellent_conductivity
+      - corrosion_resistant
+      - ductile
+      - antimicrobial
+    typical_applications:
+      - electrical_connections
+      - heat_exchangers
+      - plumbing
+    requires_coating: false
+
+  titânio:
+    description: "Titanium - high strength-to-weight ratio, excellent corrosion resistance"
+    properties:
+      - very_high_strength_to_weight
+      - excellent_corrosion_resistance
+      - biocompatible
+      - expensive
+    typical_applications:
+      - aerospace
+      - medical_implants
+      - racing
+    requires_coating: false
+
+  nylon:
+    description: "Nylon - engineering plastic, good strength and wear resistance"
+    properties:
+      - lightweight
+      - chemical_resistant
+      - electrical_insulator
+      - low_friction
+    typical_applications:
+      - electrical_insulation
+      - chemical_environments
+      - low_friction_applications
+    requires_coating: false
+
+  plástico:
+    description: "Generic plastic - various polymers for non-structural applications"
+    properties:
+      - lightweight
+      - corrosion_resistant
+      - electrical_insulator
+      - low_strength
+    typical_applications:
+      - electrical_insulation
+      - decorative
+      - low_load_applications
+    requires_coating: false
+
+  borracha:
+    description: "Rubber - elastic material for sealing and vibration damping"
+    properties:
+      - elastic
+      - sealing
+      - vibration_damping
+      - chemical_resistant_options
+    typical_applications:
+      - sealing_washers
+      - vibration_isolation
+      - gaskets
+    requires_coating: false
+
+  zinco:
+    description: "Zinc - corrosion-resistant metal, used for anchors and coatings"
+    properties:
+      - corrosion_resistant
+      - sacrificial_coating
+      - economical
+    typical_applications:
+      - wall_anchors
+      - galvanized_coatings
+    requires_coating: false
+
+# ============================================================================
+# GLOBAL COATING DEFINITIONS
+# ============================================================================
+
+global_coatings:
+  zincado:
+    description: "Electrolytic zinc plating - most common corrosion protection"
+    corrosion_resistance: "moderate"
+    thickness_um: [5, 15]
+    color: "bright_silver"
+    cost: "low"
+
+  galvanizado:
+    description: "Hot-dip galvanizing - thick zinc coating for severe environments"
+    corrosion_resistance: "high"
+    thickness_um: [40, 100]
+    color: "matte_grey"
+    cost: "medium"
+
+  niquelado:
+    description: "Nickel plating - decorative and corrosion resistant"
+    corrosion_resistance: "high"
+    thickness_um: [5, 25]
+    color: "bright_silver"
+    cost: "medium"
+
+  cromado:
+    description: "Chrome plating - highly decorative and wear resistant"
+    corrosion_resistance: "very_high"
+    thickness_um: [1, 5]
+    color: "bright_mirror"
+    cost: "high"
+
+  dacromet:
+    description: "Zinc-aluminum flake coating - excellent corrosion resistance"
+    corrosion_resistance: "very_high"
+    thickness_um: [5, 10]
+    color: "silver_grey"
+    cost: "high"
+
+  geomet:
+    description: "Zinc-aluminum coating with ceramic - superior corrosion resistance"
+    corrosion_resistance: "excellent"
+    thickness_um: [8, 15]
+    color: "silver_grey"
+    cost: "high"
+
+  fosfatizado:
+    description: "Phosphate coating - pre-treatment for painting or lubrication"
+    corrosion_resistance: "low"
+    thickness_um: [1, 5]
+    color: "grey_black"
+    cost: "low"
+
+  preto:
+    description: "Black oxide - decorative low-corrosion protection"
+    corrosion_resistance: "low"
+    thickness_um: [1, 2]
+    color: "black"
+    cost: "low"
+
+  anodizado:
+    description: "Anodized coating - for aluminum, increases hardness and corrosion resistance"
+    corrosion_resistance: "high"
+    thickness_um: [5, 25]
+    color: "various"
+    cost: "medium"
+    applicable_materials: ["alumínio"]
+
+  passivado:
+    description: "Passivation - chemical treatment to enhance stainless steel corrosion resistance"
+    corrosion_resistance: "enhanced"
+    thickness_um: [0, 1]
+    color: "unchanged"
+    cost: "low"
+    applicable_materials: ["aço_inox_304", "aço_inox_316", "aço_inox_430"]
+
+  natural:
+    description: "No coating - natural material finish"
+    corrosion_resistance: "material_dependent"
+    thickness_um: [0, 0]
+    color: "material_color"
+    cost: "none"
+
+# ============================================================================
+# END OF VALIDATION RULES
+# ============================================================================
