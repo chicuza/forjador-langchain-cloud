@@ -1,0 +1,8 @@
+{
+  "python_version": "3.11",
+  "dependencies": ["."],
+  "graphs": {
+    "forjador_v5_pipeline": "src.agent:graph"
+  },
+  "env": ".env"
+}

@@ -1,0 +1,76 @@
+version: '3.8'
+
+# ============================================================================
+# Forjador v5 - SPEC-01 MVP Docker Compose Configuration
+# ============================================================================
+# Local development and testing environment
+# Usage: docker-compose up -d
+# ============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # Forjador Pipeline Service
+  # --------------------------------------------------------------------------
+  forjador-pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: forjador-v5-spec01
+    restart: unless-stopped
+
+    # Environment variables from .env file
+    env_file:
+      - .env
+
+    # Mount volumes for development
+    volumes:
+      # Source code (hot reload in development)
+      - ./src:/app/src:ro
+      - ./knowledge:/app/knowledge:ro
+
+      # Queue directories (persistent data)
+      - ./queue/input:/app/queue/input
+      - ./queue/output:/app/queue/output
+      - ./queue/processing:/app/queue/processing
+      - ./queue/error:/app/queue/error
+      - ./queue/archive:/app/queue/archive
+
+    # Ports (if running LangGraph dev server)
+    ports:
+      - "8000:8000"
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+    # Network
+    networks:
+      - forjador-network
+
+# --------------------------------------------------------------------------
+# Networks
+# --------------------------------------------------------------------------
+networks:
+  forjador-network:
+    driver: bridge
+
+# --------------------------------------------------------------------------
+# Volumes (for production persistence)
+# --------------------------------------------------------------------------
+volumes:
+  queue-data:
+    driver: local
