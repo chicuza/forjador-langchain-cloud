@@ -1,0 +1,182 @@
+# ============================================================================
+# Forjador v5 - Python/LangGraph Project .gitignore
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Environment & Secrets (CRITICAL - NEVER COMMIT!)
+# ----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+credentials.json
+
+# ----------------------------------------------------------------------------
+# Python
+# ----------------------------------------------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ----------------------------------------------------------------------------
+# Testing
+# ----------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.log
+
+# ----------------------------------------------------------------------------
+# IDEs
+# ----------------------------------------------------------------------------
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# ----------------------------------------------------------------------------
+# LangGraph & LangSmith
+# ----------------------------------------------------------------------------
+# LangGraph local cache
+.langgraph/
+langgraph_cache/
+
+# LangSmith local data
+.langsmith/
+
+# ----------------------------------------------------------------------------
+# Queue Directories (Data Files)
+# ----------------------------------------------------------------------------
+# Input/output directories contain sensitive business data
+queue/input/*
+!queue/input/.gitkeep
+
+queue/output/*
+!queue/output/.gitkeep
+
+queue/processing/*
+!queue/processing/.gitkeep
+
+queue/error/*
+!queue/error/.gitkeep
+
+queue/archive/*
+!queue/archive/.gitkeep
+
+# ----------------------------------------------------------------------------
+# Database (SPEC-02+)
+# ----------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL
+*.sql.backup
+pg_dump_*
+
+# ChromaDB
+chroma_db/
+*.chroma
+
+# ----------------------------------------------------------------------------
+# Logs & Temporary Files
+# ----------------------------------------------------------------------------
+logs/
+*.log
+*.out
+*.err
+temp/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# ----------------------------------------------------------------------------
+# OS
+# ----------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.Trash-*
+
+# ----------------------------------------------------------------------------
+# Docker
+# ----------------------------------------------------------------------------
+docker-compose.override.yml
+.dockerignore
+
+# ----------------------------------------------------------------------------
+# Documentation
+# ----------------------------------------------------------------------------
+docs/_build/
+site/
+
+# ----------------------------------------------------------------------------
+# Misc
+# ----------------------------------------------------------------------------
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.dmypy.json
+dmypy.json
