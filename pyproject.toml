@@ -13,7 +13,7 @@ dependencies = [
 
     # Document Parsing (SPEC-01: 3 parsers)
     "docling>=2.0.0",          # SOL-04: Docling 2.0
-    "google-generativeai>=0.7.0,<0.8.0",  # SOL-05: Gemini Vision (LangGraph compatible)
+        "google-generativeai>=0.8.0",  # SOL-05: Gemini Vision (LangGraph compatible)
 
     # Data Processing
     "polars>=0.20.0",
