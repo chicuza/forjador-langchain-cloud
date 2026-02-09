@@ -67,25 +67,56 @@ include = ["src*"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+src = ["src", "tests"]
+extend-exclude = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "htmlcov",
+    "dist",
+    "build",
+]
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+    "SIM",  # flake8-simplify
+    "RET",  # flake8-return
+    "ARG",  # flake8-unused-arguments
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "ARG001", # unused function argument (common in handlers)
+    "ARG002", # unused method argument
+    "N803",   # argument name should be lowercase (allow for SKU, etc.)
+    "N806",   # variable name should be lowercase (allow for DataFrame, etc.)
 ]
 
-[tool.black]
-line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ARG",     # Allow unused arguments in test fixtures
+    "S101",    # Allow assert in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+force-sort-within-sections = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.11"
@@ -93,11 +124,52 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+check_untyped_defs = true
+exclude = [
+    "^build/",
+    "^dist/",
+    "^\\.venv/",
+    "^venv/",
+]
+
+# Strict checking for specific modules (gradual typing)
+[[tool.mypy.overrides]]
+module = "src.state.*"
+disallow_untyped_defs = true
+warn_return_any = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=src --cov-report=term-missing"
+addopts = [
+    "-v",                                    # Verbose output
+    "--strict-markers",                      # Fail on unknown markers
+    "--tb=short",                           # Short traceback format
+    "--cov=src",                            # Coverage for src directory
+    "--cov-report=term-missing",            # Show missing lines in terminal
+    "--cov-report=html:htmlcov",            # Generate HTML coverage report
+    "--cov-report=xml",                     # Generate XML coverage report for CI
+    "--cov-fail-under=70",                  # Fail if coverage below 70%
+]
 asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+timeout = 300                                # Global test timeout (5 minutes)
+
